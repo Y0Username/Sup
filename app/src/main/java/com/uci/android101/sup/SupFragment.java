@@ -1,13 +1,17 @@
 package com.uci.android101.sup;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +27,8 @@ import android.widget.Toast;
 public class SupFragment extends Fragment {
 
     private static final int REQUEST_CONTACT = 0;
+    private static final int READ_CONTACTS = 1;
+    private static final int SEND_SMS = 2;
     private static final String SAVED_STATE_FRIEND_NAME = "SAVED_STATE_FRIEND_NAME";
     private static final String SAVED_STATE_FRIEND_PHONE_NUMBER = "SAVED_STATE_FRIEND_PHONE_NUMBER";
 
@@ -60,6 +66,7 @@ public class SupFragment extends Fragment {
         mSelectFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getPermissionFromUser(READ_CONTACTS);
                 startActivityForResult(pickContact, REQUEST_CONTACT);
             }
         });
@@ -67,6 +74,7 @@ public class SupFragment extends Fragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getPermissionFromUser(SEND_SMS);
                 if (mFriend.getPhoneNumber() != null) {
                     sendSup();
                 } else {
@@ -95,6 +103,48 @@ public class SupFragment extends Fragment {
         if (mFriend != null) {
             outState.putString(SAVED_STATE_FRIEND_NAME, mFriend.getFriendName());
             outState.putString(SAVED_STATE_FRIEND_PHONE_NUMBER, mFriend.getPhoneNumber());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == READ_CONTACTS || requestCode == SEND_SMS) {
+            String permission = null;
+            if (requestCode == READ_CONTACTS) {
+                permission = getString(R.string.read_contacts);
+            } else if (requestCode == SEND_SMS) {
+                permission = getString(R.string.send_sms);
+            }
+            if (permission != null) {
+                String result = null;
+                if (grantResults.length == 1 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    result = " permission granted";
+                } else {
+                    result = " permission denied";
+                }
+                Toast.makeText(getActivity().getApplicationContext(),
+                        permission + result, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    /**
+     * Prompts user for permission to perform a particular task.
+     */
+    public void getPermissionFromUser(int request) {
+        String permission = null;
+        if (request == READ_CONTACTS) {
+            permission = Manifest.permission.READ_CONTACTS;
+        } else if (request == SEND_SMS) {
+            permission = Manifest.permission.SEND_SMS;
+        }
+        if (permission != null &&
+                ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), permission)
+                        != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{permission}, request);
         }
     }
 

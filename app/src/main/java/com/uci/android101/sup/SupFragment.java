@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Date;
+
 /**
  * Created by somarkoe on 11/2/16.
  */
@@ -30,6 +32,8 @@ public class SupFragment extends Fragment {
     private Button mSendButton;
     private TextView mLastSupSent;
     private Friend mFriend;
+    private String mLastSupSentFormat;
+    private String mSupDateFormat;
 
     @Nullable
     @Override
@@ -75,6 +79,14 @@ public class SupFragment extends Fragment {
             }
         });
 
+        mSupDateFormat = getString(R.string.dateFormat);
+        mLastSupSentFormat = getString(R.string.latestSupFormat);
+        String lastSupText = SupDao.get(getContext()).getLatestSup(mLastSupSentFormat, mSupDateFormat);
+        if (lastSupText == null) {
+            lastSupText = getString(R.string.emptyLatestSup);
+        }
+        mLastSupSent.setText(lastSupText);
+
         return v;
     }
 
@@ -116,6 +128,8 @@ public class SupFragment extends Fragment {
             e.printStackTrace();
         } finally {
             mSelectFriend.setText(R.string.select_friend);
+            saveSup();
+            setLatestSup();
         }
     }
 
@@ -194,5 +208,24 @@ public class SupFragment extends Fragment {
             }
         }
         mFriend.setPhoneNumber(phoneNumber);
+    }
+
+    /**
+     * Creates an instance of Sup and saves it to the Sup database.
+     */
+    private void saveSup() {
+        Sup sup = new Sup(mFriend, new Date());
+        SupDao.get(getContext()).addSup(sup);
+    }
+
+    /**
+     * Retrieves the string to display for the latest sup from the last sup saved to the database.
+     */
+    private void setLatestSup() {
+        String lastSupText = SupDao.get(getContext()).getLatestSup(mLastSupSentFormat, mSupDateFormat);
+        if (lastSupText == null) {
+            lastSupText = getString(R.string.emptyLatestSup);
+        }
+        mLastSupSent.setText(lastSupText);
     }
 }

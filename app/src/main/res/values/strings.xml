@@ -1,14 +1,3 @@
 <resources>
     <string name="app_name">Sup</string>
-
-    <string name="select_friend">Choose a friend</string>
-    <string name="send_sup">Send \'Sup\'</string>
-    <string name="emptyLatestSup">todo: Last Sup sent</string>
-
-    <string name="latestSupFormat">Last Sup sent to %1$s %2$s</string>
-    <string name="dateFormat">\'on\' M/d/yyy \'at\' h:mma</string>
-    <string name="noPhoneNumber">Please add a phone number!</string>
-    <string name="message">Sup</string>
-    <string name="sent">Sent!</string>
-    <string name="error">Sending failed. Please try again later!</string>
 </resources>

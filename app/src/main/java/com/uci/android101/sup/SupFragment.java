@@ -178,6 +178,7 @@ public class SupFragment extends Fragment {
             e.printStackTrace();
         } finally {
             mSelectFriend.setText(R.string.select_friend);
+            mFriend = new Friend();
             saveSup();
             setLatestSup();
         }
